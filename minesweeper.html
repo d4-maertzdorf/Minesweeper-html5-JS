@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Minesweeper</title>
+  <style>
+    /* Add some styling for the game */
+    #board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      grid-gap: 1px;
+      border: 1px solid black;
+      width: 400px;
+      height: 400px;
+    }
+    .cell {
+      background-color: lightgray;
+      border: 1px solid gray;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .cell.revealed {
+      background-color: white;
+    }
+    .cell.mine {
+      background-color: red;
+    }
+    .cell.flagged {
+      background-color: yellow;
+    }
+  </style>
+</head>
+<body>
+  <!-- Create the game board -->
+  <div id="board"></div>
+
+  <script>
+    // Set up the game board
+    const board = document.getElementById('board');
+    const cells = [];
+    const numRows = 8;
+    const numCols = 8;
+    const numMines = 10;
+
+    // Create the cells for the board
+    for (let i = 0; i < numRows; i++) {
+      cells[i] = [];
+      for (let j = 0; j < numCols; j++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.row = i;
+        cell.dataset.col = j;
+        board.appendChild(cell);
+        cells[i][j] = cell;
+      }
+    }
+
+    // Place the mines randomly on the board
+    let minesPlaced = 0;
+    while (minesPlaced < numMines) {
+      const row = Math.floor(Math.random() * numRows);
+      const col = Math.floor(Math.random() * numCols);
+      if (!cells[row][col].classList.contains('mine')) {
+        cells[row][col].classList.add('mine');
+        minesPlaced++;
+      }
+    }
+
+    // Add event listeners for cell clicks
+    board.addEventListener('click', (event) => {
+      const cell = event.target;
+      if (cell.classList.contains('cell') && !cell.classList.contains('revealed')) {
+        if (cell.classList.contains('mine')) {
+          alert('Game over!');
+        } else {
+          reveal(cell);
+        }
+      }
+    });
+    board.addEventListener('contextmenu', (event) => {
+      event.preventDefault();
+      const cell = event.target;
+      if (cell.classList.contains('cell') && !cell.classList.contains('revealed')) {
+        cell.classList
+.toggle('flagged');
+}
+});
+
+// Reveal a cell and its surrounding cells if there are no mines
+function reveal(cell) {
+  const row = +cell.dataset.row;
+  const col = +cell.dataset.col;
+  cell.classList.add('revealed');
+  let numSurroundingMines = 0;
+  for (let i = row - 1; i <= row + 1; i++) {
+    for (let j = col - 1; j <= col + 1; j++) {
+      if (i >= 0 && i < numRows && j >= 0 && j < numCols) {
+        if (cells[i][j].classList.contains('mine')) {
+          numSurroundingMines++;
+        }
+      }
+    }
+  }
+  cell.textContent = numSurroundingMines || '';
+  if (numSurroundingMines === 0) {
+    for (let i = row - 1; i <= row + 1; i++) {
+      for (let j = col - 1; j <= col + 1; j++) {
+        if (i >= 0 && i < numRows && j >= 0 && j < numCols) {
+          if (!cells[i][j].classList.contains('revealed')) {
+            reveal(cells[i][j]);
+          }
+        }
+      }
+    }
+  }
+}
+  </script>
+</body>
+</html>
+```
